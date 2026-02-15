@@ -10,12 +10,12 @@ async function bootstrap() {
     {
       transport: Transport.TCP,
       options:{
+        host: envs.host,
         port: envs.port
       }
     }
   );
-  const logger = new Logger('Auth-MS')
-
+  const logger = new Logger('Users-MS')
 
   await app.listen();
   logger.log(`Microservice is listening on port ${envs.port}`);

@@ -18,5 +18,6 @@ if(error){
 const envVars : EnvVars = value
 
 export const envs = {
-    port: envVars.PORT
+    port: envVars.PORT,
+    host: process.env.USERS_MS_HOST || '0.0.0.0'
 }
