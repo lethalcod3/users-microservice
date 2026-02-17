@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  user
+  artist
+}
+
+model user{
+  user_id   String @id @default(uuid())
+  name  String
+  email   String @unique
+  psswd   String
+  google_id   String? @unique
+  biography   String?
+  role  Role @default(user)
+  created_at  DateTime @default(now())
+}
+
+model user_follows {
+  follower_id   String @id @default(uuid())
+  followed_id   String
+}
+
+model password_reset {
+  psswd_id  String @id @default(uuid())
+  user_id   String
+  token   String
+  expires_at  DateTime
+  used  Boolean @default(false)
+}
+
+model social_media {
+  sm_id   String @id @default(uuid())
+  user_id   String
+  url   String
+}

@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  auth-db:
+    image: postgres:15-alpine
+    container_name: riff_auth
+    restart: always
+    volumes:
+      - ./postgres:/var/lib/postgresql/data
+    ports:
+      - ${DB_PORT}:5432
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
