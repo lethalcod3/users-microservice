@@ -5,45 +5,36 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
 }
 
 datasource db {
   provider = "postgresql"
+  url = env("DATABASE_URL")
 }
 
-enum Role {
-  user
-  artist
+enum UserRole {
+  USER
+  ARTIST
 }
 
-model user{
-  user_id   String @id @default(uuid())
-  name  String
-  email   String @unique
-  psswd   String
-  google_id   String? @unique
-  biography   String?
-  role  Role @default(user)
-  created_at  DateTime @default(now())
-}
+model User {
+  id String @id @default(uuid())
 
-model user_follows {
-  follower_id   String @id @default(uuid())
-  followed_id   String
-}
+  name String
 
-model password_reset {
-  psswd_id  String @id @default(uuid())
-  user_id   String
-  token   String
-  expires_at  DateTime
-  used  Boolean @default(false)
-}
+  email String @unique
 
-model social_media {
-  sm_id   String @id @default(uuid())
-  user_id   String
-  url   String
+  password String
+
+  googleId String? @map("google_id")
+
+  biography String?
+
+  role UserRole
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
 }
