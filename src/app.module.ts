@@ -7,7 +7,14 @@ import { UserStatsModule } from './user-stats/user-stats.module';
 import { PrismaModule } from 'prisma/prisma.module';
 
 @Module({
-  imports: [UsersModule, SocialMediaModule, PasswordResetsModule, UserFollowsModule, UserStatsModule, PrismaModule],
+  imports: [
+    UsersModule, 
+    SocialMediaModule, 
+    PasswordResetsModule, 
+    UserFollowsModule, 
+    UserStatsModule, 
+    PrismaModule
+  ],
   controllers: [],
   providers: [],
 })

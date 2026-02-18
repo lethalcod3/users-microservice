@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Controller, ParseUUIDPipe } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SocialMediaService } from './social-media.service';
 import { CreateSocialMediaDto } from './dto/create-social-media.dto';
@@ -19,7 +19,7 @@ export class SocialMediaController {
   }
 
   @MessagePattern('findOneSocialMedia')
-  findOne(@Payload() id: number) {
+  findOne(@Payload(new ParseUUIDPipe()) id: string) {
     return this.socialMediaService.findOne(id);
   }
 
@@ -29,7 +29,7 @@ export class SocialMediaController {
   }
 
   @MessagePattern('removeSocialMedia')
-  remove(@Payload() id: number) {
+  remove(@Payload(new ParseUUIDPipe()) id: string) {
     return this.socialMediaService.remove(id);
   }
 }
