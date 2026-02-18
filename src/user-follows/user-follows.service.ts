@@ -1,26 +1,60 @@
-import { Injectable } from '@nestjs/common';
+import { 
+  BadRequestException, 
+  Injectable, 
+  Logger, 
+  NotFoundException, 
+  OnModuleInit 
+} from '@nestjs/common';
 import { CreateUserFollowDto } from './dto/create-user-follow.dto';
-import { UpdateUserFollowDto } from './dto/update-user-follow.dto';
+import { PrismaService } from 'prisma/prisma.service';
 
 @Injectable()
-export class UserFollowsService {
-  create(createUserFollowDto: CreateUserFollowDto) {
-    return 'This action adds a new userFollow';
+export class UserFollowsService implements OnModuleInit {
+
+  private readonly logger = new Logger('UserFollowsService');
+
+  constructor(private readonly prisma: PrismaService) {}
+
+  onModuleInit() {
+    this.logger.log('UserFollowsService initialized');
   }
 
-  findAll() {
-    return `This action returns all userFollows`;
+  async toggleFollow(createUserFollowDto: CreateUserFollowDto) {
+    const { followerId, followedId } = createUserFollowDto;
+
+    if (followerId === followedId) {
+      throw new BadRequestException('Un usuario no puede seguirse a sí mismo');
+    }
+
+    const existing = await this.findOne(followerId, followedId);
+
+    if (existing) {
+      await this.prisma.userFollows.delete({
+        where: {
+          followerId_followedId: { followerId, followedId }
+        }
+      });
+      return { following: false, message: `Se dejo de seguir al usuario ${followedId}` };
+    }
+
+    await this.prisma.userFollows.create({
+      data: { followerId, followedId }
+    });
+
+    return { following: true, message: `Ahora se sigue al usuario ${followedId}` };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} userFollow`;
+  async findAll(followerId: string) {
+    return await this.prisma.userFollows.findMany({
+      where: { followerId }
+    });
   }
 
-  update(id: number, updateUserFollowDto: UpdateUserFollowDto) {
-    return `This action updates a #${id} userFollow`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} userFollow`;
+  async findOne(followerId: string, followedId: string) {
+    return await this.prisma.userFollows.findUnique({
+      where: {
+        followerId_followedId: { followerId, followedId }
+      }
+    });
   }
 }

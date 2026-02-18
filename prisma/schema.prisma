@@ -37,6 +37,8 @@ model User {
   createdAt DateTime @default(now()) @map("created_at")
 
   socialMedia SocialMedia[]
+  following UserFollows[] @relation("follower")
+  followers UserFollows[] @relation("followed")
 
   @@map("users")
 }
@@ -54,4 +56,17 @@ model SocialMedia {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("social_media")
+}
+
+model UserFollows {
+  followerId String @map("follower_id")
+  followedId String @map("followed_id")
+
+  follower User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followed User @relation("followed", fields: [followedId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@id([followerId, followedId])
+  @@map("user_follows")
 }
