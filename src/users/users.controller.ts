@@ -47,5 +47,11 @@ export class UsersController {
   createUserGoogle(@Payload() payload: any) {
     return this.usersService.createUserGoogle(payload);
   }
+
+  
+  @MessagePattern('login')
+  login(@Payload() payload: { email: string; password: string }) {
+    return this.usersService.login(payload);
+  }
   
 }

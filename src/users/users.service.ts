@@ -94,7 +94,7 @@ export class UsersService implements OnModuleInit {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: '24h' }
+    { expiresIn: '10s' }
   );
   }
 
@@ -119,6 +119,34 @@ export class UsersService implements OnModuleInit {
 
     await this.userStatsService.create(user.id);
     return user;
+  }
+
+
+  async login(payload: { email: string; password: string }) {
+    const user = await this.prisma.user.findFirst({
+      where: { email: payload.email }
+    });
+
+    if (!user) {
+      throw new RpcException({
+        message: 'Credenciales incorrectas',
+        statusCode: 401
+      });
+    }
+
+    // Verificar contraseña
+    const isPasswordValid = payload.password === user.password;
+
+    if (!isPasswordValid) {
+      throw new RpcException({
+        message: 'Credenciales incorrectas',
+        statusCode: 401
+      });
+    }
+
+    // Generar token
+    const token = this.generateToken(user);
+    return { token, user };
   }
 
 }
