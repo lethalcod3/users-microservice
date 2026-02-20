@@ -94,7 +94,7 @@ export class UsersService implements OnModuleInit {
   return jwt.sign(
     { id: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET,
-    { expiresIn: '10s' }
+    { expiresIn: '24h' }
   );
   }
 
