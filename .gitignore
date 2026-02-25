@@ -4,6 +4,8 @@
 /build
 postgres/
 mongo_data/
+rabbitmq_data/
+
 # Logs
 logs
 *.log

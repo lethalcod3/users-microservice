@@ -8,17 +8,17 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { randomBytes, createHash } from 'node:crypto';
+import { envs } from 'src/config';
 
 @Injectable()
 export class PasswordResetsSenderService implements OnModuleInit {
   private readonly logger = new Logger('PsswrdResetService');
   private client: ClientProxy;
   constructor(private readonly prisma: PrismaService) {
-    //No sé que es esta mamada pero hace que el producer funcione
     this.client = ClientProxyFactory.create({
       transport: Transport.RMQ,
       options: {
-        urls: ['amqp://localhost:5672'],
+        urls: [envs.rabbit_url],
         queue: 'riff_queue',
       },
     });

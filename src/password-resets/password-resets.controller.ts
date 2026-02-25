@@ -24,7 +24,7 @@ export class PasswordResetsController {
   }
 
   @MessagePattern('findOnePasswordReset')
-  findOne(@Payload() id: number) {
+  findOne(@Payload() id: string) {
     return this.passwordResetsService.findOne(id);
   }
 
@@ -37,7 +37,7 @@ export class PasswordResetsController {
   }
 
   @MessagePattern('removePasswordReset')
-  remove(@Payload() id: number) {
+  remove(@Payload() id: string) {
     return this.passwordResetsService.remove(id);
   }
 
