@@ -27,7 +27,7 @@ export class SocialMediaController {
   update(@Payload() updateSocialMediaDto: UpdateSocialMediaDto) {
     return this.socialMediaService.update(
       updateSocialMediaDto.id,
-      updateSocialMediaDto,
+      updateSocialMediaDto
     );
   }
 

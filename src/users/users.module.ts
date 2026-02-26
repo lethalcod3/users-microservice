@@ -6,6 +6,6 @@ import { UserStatsModule } from 'src/user-stats/user-stats.module';
 @Module({
   controllers: [UsersController],
   providers: [UsersService],
-  imports: [UserStatsModule]
+  imports: [UserStatsModule],
 })
 export class UsersModule {}

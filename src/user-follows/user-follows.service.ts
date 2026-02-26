@@ -3,11 +3,6 @@ import {
   Injectable,
   Logger,
   OnModuleInit,
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  OnModuleInit,
 } from '@nestjs/common';
 import { CreateUserFollowDto } from './dto/create-user-follow.dto';
 import { PrismaService } from 'prisma/prisma.service';
@@ -54,8 +49,6 @@ export class UserFollowsService implements OnModuleInit {
         where: {
           followerId_followedId: { followerId, followedId },
         },
-          followerId_followedId: { followerId, followedId },
-        },
       });
 
       return {
@@ -66,18 +59,17 @@ export class UserFollowsService implements OnModuleInit {
 
     await this.prisma.userFollows.create({
       data: { followerId, followedId },
-      data: { followerId, followedId },
     });
 
     await lastValueFrom(
       this.client.emit('new.follower', {
         followerId,
         followedId,
-      }),
+      })
     );
 
     this.logger.log(
-      `Event emitted: new follower with id ${followerId} following ${followedId}`,
+      `Event emitted: new follower with id ${followerId} following ${followedId}`
     );
 
     return {
@@ -89,15 +81,12 @@ export class UserFollowsService implements OnModuleInit {
   async findAll(followerId: string) {
     return await this.prisma.userFollows.findMany({
       where: { followerId },
-      where: { followerId },
     });
   }
 
   async findOne(followerId: string, followedId: string) {
     return await this.prisma.userFollows.findUnique({
       where: {
-        followerId_followedId: { followerId, followedId },
-      },
         followerId_followedId: { followerId, followedId },
       },
     });
@@ -111,4 +100,3 @@ export class UserFollowsService implements OnModuleInit {
     return follows.map((f) => f.followerId);
   }
 }
-

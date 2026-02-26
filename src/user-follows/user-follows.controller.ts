@@ -19,11 +19,14 @@ export class UserFollowsController {
 
   @MessagePattern('findOneUserFollow')
   findOne(@Payload() payload: { followerId: string; followedId: string }) {
-    return this.userFollowsService.findOne(payload.followerId, payload.followedId);
+    return this.userFollowsService.findOne(
+      payload.followerId,
+      payload.followedId
+    );
   }
 
   @MessagePattern('findFollowers')
-  findFollowers(@Payload() payload: {userId: string}){
-    return this.userFollowsService.findFollowers(payload.userId)
+  findFollowers(@Payload() payload: { userId: string }) {
+    return this.userFollowsService.findFollowers(payload.userId);
   }
 }

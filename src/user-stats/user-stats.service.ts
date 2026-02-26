@@ -10,7 +10,7 @@ import { RpcException } from '@nestjs/microservices';
 export class UserStatsService {
   constructor(
     @InjectModel(UserStats.name)
-    private readonly userStatsModel: Model<UserStats>,
+    private readonly userStatsModel: Model<UserStats>
   ) {}
 
   async create(sqlUserId: string) {
@@ -29,7 +29,7 @@ export class UserStatsService {
       .findOneAndUpdate(
         { sqlUserId },
         { $inc: { profileViews: 1 } },
-        { new: true }, // retorna el documento actualizado
+        { new: true } // retorna el documento actualizado
       )
       .exec();
   }

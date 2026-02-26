@@ -13,7 +13,7 @@ export class UsersService implements OnModuleInit {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly userStatsService: UserStatsService,
+    private readonly userStatsService: UserStatsService
   ) {}
 
   onModuleInit() {
@@ -93,7 +93,7 @@ export class UsersService implements OnModuleInit {
     return jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       envs.jwtSecret,
-      { expiresIn: '24h' },
+      { expiresIn: '24h' }
     );
   }
 

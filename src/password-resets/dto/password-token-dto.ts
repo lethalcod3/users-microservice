@@ -6,19 +6,12 @@ import {
   IsString,
 } from 'class-validator';
 
-export class CreatePasswordResetDto {
+export class PasswordTokenDto {
   @IsString()
   @IsNotEmpty()
-  userId!: string;
+  password!: string;
 
   @IsString()
   @IsNotEmpty()
   token!: string;
-
-  @IsDateString()
-  expiresAt!: Date;
-
-  @IsBoolean()
-  @IsOptional()
-  used!: boolean;
 }

@@ -73,7 +73,7 @@ export class PasswordResetsSenderService implements OnModuleInit {
           userId: user.id,
           userName: user.name,
           token: rawTok,
-        }),
+        })
       );
 
       this.logger.log('Evento emitido a RabbitMQ: send.resetPassword');

@@ -6,7 +6,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller()
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @MessagePattern('createUser')
   create(@Payload() createUserDto: CreateUserDto) {
@@ -48,10 +48,8 @@ export class UsersController {
     return this.usersService.createUserGoogle(payload);
   }
 
-  
   @MessagePattern('login')
   login(@Payload() payload: { email: string; password: string }) {
     return this.usersService.login(payload);
   }
-  
 }

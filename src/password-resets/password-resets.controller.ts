@@ -10,7 +10,7 @@ import { MailDto } from './dto/mail.dto';
 export class PasswordResetsController {
   constructor(
     private readonly passwordResetsService: PasswordResetsService,
-    private readonly passwordResetsSenderService: PasswordResetsSenderService,
+    private readonly passwordResetsSenderService: PasswordResetsSenderService
   ) {}
 
   @MessagePattern('createPasswordReset')
@@ -32,7 +32,7 @@ export class PasswordResetsController {
   update(@Payload() updatePasswordResetDto: UpdatePasswordResetDto) {
     return this.passwordResetsService.update(
       updatePasswordResetDto.id,
-      updatePasswordResetDto,
+      updatePasswordResetDto
     );
   }
 
