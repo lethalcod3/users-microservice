@@ -1,26 +1,52 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from 'prisma/prisma.service';
+import { RpcException } from '@nestjs/microservices';
 import { CreatePasswordResetDto } from '../dto/create-password-reset.dto';
 import { UpdatePasswordResetDto } from '../dto/update-password-reset.dto';
 
 @Injectable()
 export class PasswordResetsService {
-  create(createPasswordResetDto: CreatePasswordResetDto) {
-    return 'This action adds a new passwordReset';
+
+  constructor(
+    private readonly prisma: PrismaService
+  ){}
+
+  async create(createPasswordResetDto: CreatePasswordResetDto) {
+    return await this.prisma.passwordReset.create({
+      data: createPasswordResetDto
+    })
   }
 
-  findAll() {
-    return `This action returns all passwordResets`;
+  async findAll() {
+    return await this.prisma.passwordReset.findMany({
+      orderBy: {createdAt: 'desc'}
+    })
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} passwordReset`;
+  async findOne(id: string) {
+     const passwordReset = await this.prisma.passwordReset.findUnique({
+      where: { id }
+    })
+
+    if(!id){
+      throw new RpcException({
+        status: 404,
+        message: 'Password reset not found'
+      })
+    }
+    return passwordReset
   }
 
-  update(id: number, updatePasswordResetDto: UpdatePasswordResetDto) {
-    return `This action updates a #${id} passwordReset`;
+  async update(id: string, updatePasswordResetDto: UpdatePasswordResetDto) {
+    return await this.prisma.passwordReset.update({
+      where: { id },
+      data: updatePasswordResetDto
+    })
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} passwordReset`;
+  async remove(id: string) {
+    return await this.prisma.passwordReset.delete({
+      where: { id }
+    })
   }
 }
