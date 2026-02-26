@@ -1,21 +1,24 @@
-import { 
-  BadRequestException, 
-  Injectable, 
-  Logger, 
-  NotFoundException, 
-  OnModuleInit 
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  OnModuleInit,
 } from '@nestjs/common';
 import { CreateUserFollowDto } from './dto/create-user-follow.dto';
 import { PrismaService } from 'prisma/prisma.service';
-import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
+import {
+  ClientProxy,
+  ClientProxyFactory,
+  Transport,
+} from '@nestjs/microservices';
 import { envs } from 'src/config';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserFollowsService implements OnModuleInit {
-
   private readonly logger = new Logger('UserFollowsService');
 
-  private client: ClientProxy
+  private client: ClientProxy;
 
   constructor(private readonly prisma: PrismaService) {
     this.client = ClientProxyFactory.create({
@@ -23,9 +26,9 @@ export class UserFollowsService implements OnModuleInit {
       options: {
         urls: [envs.rabbit_url],
         queue: 'riff_queue',
-        queueOptions: {durable: true}
-      }
-    })
+        queueOptions: { durable: true },
+      },
+    });
   }
 
   onModuleInit() {
@@ -44,47 +47,56 @@ export class UserFollowsService implements OnModuleInit {
     if (existing) {
       await this.prisma.userFollows.delete({
         where: {
-          followerId_followedId: { followerId, followedId }
-        }
+          followerId_followedId: { followerId, followedId },
+        },
       });
-      
-      return { following: false, message: `Se dejo de seguir al usuario ${followedId}` };
+
+      return {
+        following: false,
+        message: `Se dejo de seguir al usuario ${followedId}`,
+      };
     }
 
     await this.prisma.userFollows.create({
-      data: { followerId, followedId }
+      data: { followerId, followedId },
     });
 
-    this.client.emit('new.follower',{
-      followerId,
-      followedId
-    })
+    await lastValueFrom(
+      this.client.emit('new.follower', {
+        followerId,
+        followedId,
+      }),
+    );
 
-    this.logger.log(`Event emitted: new follower with id ${followerId} following ${followedId}`);
+    this.logger.log(
+      `Event emitted: new follower with id ${followerId} following ${followedId}`,
+    );
 
-    return { following: true, message: `Ahora se sigue al usuario ${followedId}` };
+    return {
+      following: true,
+      message: `Ahora se sigue al usuario ${followedId}`,
+    };
   }
 
   async findAll(followerId: string) {
     return await this.prisma.userFollows.findMany({
-      where: { followerId }
+      where: { followerId },
     });
   }
 
   async findOne(followerId: string, followedId: string) {
     return await this.prisma.userFollows.findUnique({
       where: {
-        followerId_followedId: { followerId, followedId }
-      }
+        followerId_followedId: { followerId, followedId },
+      },
     });
   }
 
-  async findFollowers(userId: string) : Promise<string[]>{
+  async findFollowers(userId: string): Promise<string[]> {
     const follows = await this.prisma.userFollows.findMany({
       where: { followedId: userId },
-      select: { followerId: true }
-    })
-    return follows.map(f => f.followerId)
+      select: { followerId: true },
+    });
+    return follows.map((f) => f.followerId);
   }
-
 }
