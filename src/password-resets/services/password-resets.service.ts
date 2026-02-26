@@ -6,47 +6,44 @@ import { UpdatePasswordResetDto } from '../dto/update-password-reset.dto';
 
 @Injectable()
 export class PasswordResetsService {
-
-  constructor(
-    private readonly prisma: PrismaService
-  ){}
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(createPasswordResetDto: CreatePasswordResetDto) {
     return await this.prisma.passwordReset.create({
-      data: createPasswordResetDto
-    })
+      data: createPasswordResetDto,
+    });
   }
 
   async findAll() {
     return await this.prisma.passwordReset.findMany({
-      orderBy: {createdAt: 'desc'}
-    })
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async findOne(id: string) {
-     const passwordReset = await this.prisma.passwordReset.findUnique({
-      where: { id }
-    })
+    const passwordReset = await this.prisma.passwordReset.findUnique({
+      where: { id },
+    });
 
-    if(!id){
+    if (!id) {
       throw new RpcException({
         status: 404,
-        message: 'Password reset not found'
-      })
+        message: 'Password reset not found',
+      });
     }
-    return passwordReset
+    return passwordReset;
   }
 
   async update(id: string, updatePasswordResetDto: UpdatePasswordResetDto) {
     return await this.prisma.passwordReset.update({
       where: { id },
-      data: updatePasswordResetDto
-    })
+      data: updatePasswordResetDto,
+    });
   }
 
   async remove(id: string) {
     return await this.prisma.passwordReset.delete({
-      where: { id }
-    })
+      where: { id },
+    });
   }
 }
