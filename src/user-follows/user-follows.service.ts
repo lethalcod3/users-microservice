@@ -61,17 +61,6 @@ export class UserFollowsService implements OnModuleInit {
       data: { followerId, followedId },
     });
 
-    await lastValueFrom(
-      this.client.emit('new.follower', {
-        followerId,
-        followedId,
-      })
-    );
-
-    this.logger.log(
-      `Event emitted: new follower with id ${followerId} following ${followedId}`
-    );
-
     return {
       following: true,
       message: `Ahora se sigue al usuario ${followedId}`,
