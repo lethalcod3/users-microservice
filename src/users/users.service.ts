@@ -13,6 +13,17 @@ import {
 import { envs } from '../config';
 import { RpcExceptionHelper } from 'src/common';
 
+const USER_SELECT = {
+  id: true,
+  name: true,
+  email: true,
+  googleId: true,
+  biography: true,
+  role: true,
+  status: true,
+  createdAt: true,
+} as const;
+
 @Injectable()
 export class UsersService implements OnModuleInit {
   private readonly logger = new Logger('UsersService');
@@ -55,6 +66,7 @@ export class UsersService implements OnModuleInit {
         ...createUserDto,
         password: hashedPassword,
       },
+      select: USER_SELECT,
     });
 
     await this.userStatsService.create(user.id);
@@ -65,6 +77,7 @@ export class UsersService implements OnModuleInit {
   async findAll() {
     return await this.prisma.user.findMany({
       where: { status: true },
+      select: USER_SELECT,
     });
   }
 
@@ -74,6 +87,7 @@ export class UsersService implements OnModuleInit {
         id,
         status: true,
       },
+      select: USER_SELECT,
     });
 
     if (!user) RpcExceptionHelper.notFound(`User`, id);
@@ -88,6 +102,7 @@ export class UsersService implements OnModuleInit {
     return await this.prisma.user.update({
       where: { id },
       data,
+      select: USER_SELECT,
     });
   }
 
@@ -96,6 +111,7 @@ export class UsersService implements OnModuleInit {
 
     return await this.prisma.user.delete({
       where: { id },
+      select: USER_SELECT,
     });
   }
 
@@ -120,9 +136,14 @@ export class UsersService implements OnModuleInit {
   }
 
   async addPassword(id: string, newPassword: string) {
-    const user = await this.findOne(id);
+    const userWithPassword = await this.prisma.user.findFirst({
+      where: { id, status: true },
+      select: { id: true, password: true },
+    });
 
-    if (user!.password)
+    if (!userWithPassword) RpcExceptionHelper.notFound('User', id);
+
+    if (userWithPassword!.password)
       RpcExceptionHelper.badRequest(`The user already has registered password`);
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -130,12 +151,14 @@ export class UsersService implements OnModuleInit {
     return await this.prisma.user.update({
       where: { id },
       data: { password: hashedPassword },
+      select: USER_SELECT,
     });
   }
 
   async findByEmail(email: string) {
     const user = await this.prisma.user.findFirst({
       where: { email, status: true },
+      select: USER_SELECT,
     });
 
     if (!user) RpcExceptionHelper.notFound('User', email);
@@ -155,6 +178,7 @@ export class UsersService implements OnModuleInit {
     // Verificar si ya existe por googleId
     const existingUser = await this.prisma.user.findFirst({
       where: { googleId: payload.googleId },
+      select: USER_SELECT,
     });
 
     if (existingUser) return existingUser;
@@ -168,6 +192,7 @@ export class UsersService implements OnModuleInit {
         password: null,
         role: payload.role ?? 'USER',
       },
+      select: USER_SELECT,
     });
 
     await this.userStatsService.create(user.id);
@@ -195,6 +220,7 @@ export class UsersService implements OnModuleInit {
 
     // Generar token
     const token = this.generateToken(user);
-    return { token, user };
+    const { password: _, ...safeUser } = user!;
+    return { token, user: safeUser };
   }
 }

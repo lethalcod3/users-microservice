@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  OnModuleInit,
-} from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { CreateUserFollowDto } from './dto/create-user-follow.dto';
 import { PrismaService } from 'prisma/prisma.service';
 import {
@@ -12,6 +7,7 @@ import {
   Transport,
 } from '@nestjs/microservices';
 import { envs } from 'src/config';
+import { RpcExceptionHelper } from 'src/common';
 
 @Injectable()
 export class UserFollowsService implements OnModuleInit {
@@ -38,7 +34,7 @@ export class UserFollowsService implements OnModuleInit {
     const { followerId, followedId } = createUserFollowDto;
 
     if (followerId === followedId) {
-      throw new BadRequestException('Un usuario no puede seguirse a sí mismo');
+      RpcExceptionHelper.badRequest('Un usuario no puede seguirse a sí mismo');
     }
 
     const existing = await this.findOne(followerId, followedId);

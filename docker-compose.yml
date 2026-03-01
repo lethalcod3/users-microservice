@@ -11,6 +11,11 @@ services:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_NAME}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - users-network
 
@@ -26,6 +31,11 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASSWORD}
       - MONGO_INITDB_DATABASE=${MONGO_DB_NAME}
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - users-network
 
@@ -41,6 +51,36 @@ services:
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD:-guest}
     volumes:
       - rabbit_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ['CMD', 'rabbitmq-diagnostics', '-q', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - users-network
+
+  users-ms:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: riff_users_ms
+    restart: always
+    ports:
+      - ${PORT:-3003}:${PORT:-3003}
+    environment:
+      - PORT=${PORT:-3003}
+      - USERS_MS_HOST=0.0.0.0
+      - DATABASE_URL=postgresql://${DB_USER}:${DB_PASSWORD}@users-db:5432/${DB_NAME}?schema=public
+      - MONGO_URI=mongodb://${MONGO_USER}:${MONGO_PASSWORD}@users-mongo:27017/${MONGO_DB_NAME}?authSource=admin
+      - RABBIT_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASSWORD:-guest}@users-rabbit:5672
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      users-db:
+        condition: service_healthy
+      users-mongo:
+        condition: service_healthy
+      users-rabbit:
+        condition: service_healthy
     networks:
       - users-network
 
