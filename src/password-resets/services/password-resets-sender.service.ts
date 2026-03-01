@@ -1,7 +1,11 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from 'prisma/prisma.service';
 import { MailDto } from '../dto/mail.dto';
-import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
+import {
+  ClientProxy,
+  ClientProxyFactory,
+  Transport,
+} from '@nestjs/microservices';
 import { randomBytes, createHash } from 'node:crypto';
 import { envs } from '../../config';
 import { RpcExceptionHelper } from '../../common';

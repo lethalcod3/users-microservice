@@ -22,10 +22,12 @@ export class UserStatsService {
   }
 
   async incrementProfileViews(sqlUserId: string) {
-    return await this.userStatsModel.findOneAndUpdate(
-      { sqlUserId },
-      { $inc: { profileViews: 1 } },
-      { new: true }
-    ).exec();
+    return await this.userStatsModel
+      .findOneAndUpdate(
+        { sqlUserId },
+        { $inc: { profileViews: 1 } },
+        { new: true }
+      )
+      .exec();
   }
 }

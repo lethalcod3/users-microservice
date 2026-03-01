@@ -6,7 +6,9 @@ export class RpcExceptionHelper {
     throw new RpcException({
       statusCode: HttpStatus.NOT_FOUND,
       code: 'NOT_FOUND',
-      message: id ? `${resource} with id ${id} not found` : `${resource} not found`,
+      message: id
+        ? `${resource} with id ${id} not found`
+        : `${resource} not found`,
     });
   }
 

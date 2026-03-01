@@ -50,6 +50,13 @@ export class UserFollowsService implements OnModuleInit {
         },
       });
 
+      // ECST: emitir evento follow.removed
+      this.client.emit('follow.removed', {
+        follower_id: followerId,
+        followed_id: followedId,
+      });
+      this.logger.log(`Emitted follow.removed: ${followerId} -> ${followedId}`);
+
       return {
         following: false,
         message: `Se dejo de seguir al usuario ${followedId}`,
@@ -59,6 +66,20 @@ export class UserFollowsService implements OnModuleInit {
     await this.prisma.userFollows.create({
       data: { followerId, followedId },
     });
+
+    // ECST: obtener datos del follower y emitir evento follow.created
+    const follower = await this.prisma.user.findUnique({
+      where: { id: followerId },
+      select: { email: true, name: true },
+    });
+
+    this.client.emit('follow.created', {
+      follower_id: followerId,
+      follower_email: follower!.email,
+      follower_name: follower!.name,
+      followed_id: followedId,
+    });
+    this.logger.log(`Emitted follow.created: ${followerId} -> ${followedId}`);
 
     return {
       following: true,

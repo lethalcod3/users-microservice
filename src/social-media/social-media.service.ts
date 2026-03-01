@@ -8,7 +8,7 @@ import { RpcExceptionHelper } from 'src/common';
 export class SocialMediaService implements OnModuleInit {
   private readonly logger = new Logger('SocialMediaService');
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   onModuleInit() {
     this.logger.log('SocialMediaService initialized');

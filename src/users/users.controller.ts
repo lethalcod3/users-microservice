@@ -59,7 +59,7 @@ export class UsersController {
   }
 
   @MessagePattern('addPassword')
-  addPassword(@Payload() payload: {id: string, newPassword: string}){
-    return this.usersService.addPassword(payload.id, payload.newPassword)
+  addPassword(@Payload() payload: { id: string; newPassword: string }) {
+    return this.usersService.addPassword(payload.id, payload.newPassword);
   }
 }
