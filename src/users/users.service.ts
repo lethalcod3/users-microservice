@@ -125,12 +125,15 @@ export class UsersService implements OnModuleInit {
       data: {
         status: false,
         name: `user${shortId}`,
+        email: `deleted_${shortId}@riff.deleted`,
         biography: 'no bio',
-      },
-    });
+        password: null,
+        googleId: null
+      }
+    })
 
-    this.client.emit('user.deactivated', { userId: id });
-    this.logger.log(`User with id ${id} deactivaded`);
+    this.client.emit('user.deactivated', {userId: id})
+    this.logger.log(`User with id ${id} deactivated`)
 
     return { message: 'Account deactivated succesfully' };
   }
