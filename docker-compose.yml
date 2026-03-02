@@ -17,7 +17,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - users-network
+      - riff-network
 
   users-mongo:
     image: mongo:6.0
@@ -37,7 +37,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - users-network
+      - riff-network
 
   users-rabbit:
     image: rabbitmq:3.12-management-alpine
@@ -57,7 +57,7 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      - users-network
+      - riff-network
 
   users-ms:
     build:
@@ -82,7 +82,7 @@ services:
       users-rabbit:
         condition: service_healthy
     networks:
-      - users-network
+      - riff-network
 
 volumes:
   postgres_data:
@@ -90,5 +90,5 @@ volumes:
   rabbit_data:
 
 networks:
-  users-network:
-    driver: bridge
+  riff-network:
+    external: true
