@@ -62,8 +62,6 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
 /generated/prisma
 
-# Documentos
+# Docs - ignore markdown and PDF files
 *.pdf
 *.md
-**/*.pdf
-**/*.md
