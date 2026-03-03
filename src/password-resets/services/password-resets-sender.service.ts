@@ -20,7 +20,7 @@ export class PasswordResetsSenderService implements OnModuleInit {
       transport: Transport.RMQ,
       options: {
         urls: [envs.rabbit_url],
-        queue: 'notifications_queue',
+        queue: 'riff_queue',
       },
     });
   }

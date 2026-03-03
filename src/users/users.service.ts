@@ -251,7 +251,9 @@ export class UsersService implements OnModuleInit {
 
     // Si no existe o ya es artista, no hacer nada
     if (!user || user.role === 'ARTIST') {
-      this.logger.log(`User ${userId} already ARTIST or not found, skipping promotion`);
+      this.logger.log(
+        `User ${userId} already ARTIST or not found, skipping promotion`
+      );
       return null;
     }
 
