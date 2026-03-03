@@ -18,11 +18,27 @@ const USER_SELECT = {
   name: true,
   email: true,
   googleId: true,
+  password: true,
   biography: true,
   role: true,
   status: true,
   createdAt: true,
+  socialMedia: {
+    select: {
+      id: true,
+      url: true,
+    },
+  },
 } as const;
+
+function sanitizeUser(user: any) {
+  if (!user) return user;
+  const { password, ...rest } = user;
+  return {
+    ...rest,
+    hasPassword: !!password,
+  };
+}
 
 @Injectable()
 export class UsersService implements OnModuleInit {
@@ -71,14 +87,30 @@ export class UsersService implements OnModuleInit {
 
     await this.userStatsService.create(user.id);
 
-    return user;
+    return sanitizeUser(user);
+  }
+
+
+  async findAllArtists(search?: string) {
+    const users = await this.prisma.user.findMany({
+      where: {
+        status: true,
+        role: 'ARTIST',
+        ...(search && {
+        name: { contains: search, mode: 'insensitive' },
+        }),
+      },
+      select: USER_SELECT,
+  });
+    return users.map(sanitizeUser);
   }
 
   async findAll() {
-    return await this.prisma.user.findMany({
+    const users = await this.prisma.user.findMany({
       where: { status: true },
       select: USER_SELECT,
     });
+    return users.map(sanitizeUser);
   }
 
   async findOne(id: string) {
@@ -91,7 +123,7 @@ export class UsersService implements OnModuleInit {
     });
 
     if (!user) RpcExceptionHelper.notFound(`User`, id);
-    return user;
+    return sanitizeUser(user);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
@@ -99,20 +131,22 @@ export class UsersService implements OnModuleInit {
 
     const { id: _, ...data } = updateUserDto;
 
-    return await this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data,
       select: USER_SELECT,
     });
+    return sanitizeUser(user);
   }
 
   async remove(id: string) {
     await this.findOne(id);
 
-    return await this.prisma.user.delete({
+    const user = await this.prisma.user.delete({
       where: { id },
       select: USER_SELECT,
     });
+    return sanitizeUser(user);
   }
 
   async deactivate(id: string) {
@@ -167,11 +201,12 @@ export class UsersService implements OnModuleInit {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
-    return await this.prisma.user.update({
+    const user = await this.prisma.user.update({
       where: { id },
       data: { password: hashedPassword },
       select: USER_SELECT,
     });
+    return sanitizeUser(user);
   }
 
   async findByEmail(email: string) {
@@ -182,7 +217,7 @@ export class UsersService implements OnModuleInit {
 
     if (!user) RpcExceptionHelper.notFound('User', email);
 
-    return user;
+    return sanitizeUser(user);
   }
 
   generateToken(user: any) {
@@ -200,7 +235,7 @@ export class UsersService implements OnModuleInit {
       select: USER_SELECT,
     });
 
-    if (existingUser) return existingUser;
+    if (existingUser) return sanitizeUser(existingUser);
 
     // Crear usuario nuevo
     const user = await this.prisma.user.create({
@@ -215,7 +250,7 @@ export class UsersService implements OnModuleInit {
     });
 
     await this.userStatsService.create(user.id);
-    return user;
+    return sanitizeUser(user);
   }
 
   async login(payload: { email: string; password: string }) {
@@ -239,8 +274,7 @@ export class UsersService implements OnModuleInit {
 
     // Generar token
     const token = this.generateToken(user);
-    const { password: _, ...safeUser } = user!;
-    return { token, user: safeUser };
+    return { token, user: sanitizeUser(user) };
   }
 
   async promoteToArtist(userId: string) {
@@ -262,6 +296,6 @@ export class UsersService implements OnModuleInit {
     });
 
     this.logger.log(`User ${userId} promoted to ARTIST`);
-    return updatedUser;
+    return sanitizeUser(updatedUser);
   }
 }

@@ -18,6 +18,12 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+
+  @MessagePattern('findAllArtists')
+  findAllArtists(@Payload() payload: { search?: string }) {
+    return this.usersService.findAllArtists(payload?.search);
+  }
+
   @MessagePattern('findOneUser')
   findOne(@Payload(new ParseUUIDPipe()) id: string) {
     return this.usersService.findOne(id);
@@ -65,7 +71,8 @@ export class UsersController {
 
   // Escucha cuando un usuario publica contenido (post o evento)
   @EventPattern('user.publishedContent')
-  handleUserPublishedContent(@Payload() data: { userId: string }) {
+  async handleUserPublishedContent(@Payload() data: { userId: string }) {
+
     return this.usersService.promoteToArtist(data.userId);
   }
 }
