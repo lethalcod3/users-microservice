@@ -30,7 +30,7 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
     });
 
     this.connection.on('disconnect', (err) => {
-      this.logger.warn('⚠️ Desconectado de RabbitMQ', err?.message);
+      this.logger.warn('⚠️ Desconectado de RabbitMQ', err?.err?.message);
     });
 
     this.channelWrapper = this.connection.createChannel({
@@ -67,12 +67,12 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
           contentType: 'application/json',
         }
       );
-      this.logger.log(`📤 Evento publicado: ${routingKey}`);
+      this.logger.log(` Evento publicado: ${routingKey}`);
       this.logger.debug(`Payload: ${JSON.stringify(payload)}`);
     } catch (error) {
       this.logger.error(
         `Error publicando evento ${routingKey}:`,
-        error instanceof Error ? error.message : String(error),
+        error instanceof Error ? error.message : String(error)
       );
       throw error;
     }

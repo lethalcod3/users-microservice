@@ -1,17 +1,32 @@
-import { IsOptional, IsString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsObject,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
+import { Type } from 'class-transformer';
+
+export class UserDto {
+  @IsString()
+  id!: string;
+
+  @IsString()
+  name!: string;
+
+  @IsString()
+  email!: string;
+
+  @IsString()
+  role!: string;
+}
 
 export class TokenGeneratedEventDto {
-  @IsString()
-  userId!: string;
+  @IsObject()
+  @ValidateNested()
+  @Type(() => UserDto)
+  user!: UserDto;
 
   @IsString()
+  @IsNotEmpty()
   token!: string;
-
-  @IsOptional()
-  @IsString()
-  expiresAt?: string;
-
-  @IsOptional()
-  @IsString()
-  type?: string;
 }

@@ -65,7 +65,9 @@ export class UsersController {
 
   // Escucha cuando un usuario publica contenido (post o evento)
   @EventPattern('user.publishedContent')
-  handleUserPublishedContent(@Payload() data: { userId: string }) {
-    return this.usersService.promoteToArtist(data.userId);
+  handleUserPublishedContent(@Payload() data: { userId: string | number }) {
+    // Aceptar tanto number como string por compatibilidad entre microservicios
+    const userId = String((data as any).userId);
+    return this.usersService.promoteToArtist(userId);
   }
 }
