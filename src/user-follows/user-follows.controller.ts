@@ -12,6 +12,15 @@ export class UserFollowsController {
     return this.userFollowsService.toggleFollow(createUserFollowDto);
   }
 
+  @MessagePattern('removeUserFollow')
+  removeFollow(@Payload() payload: { followerId: string; followedId: string }) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-call
+    return this.userFollowsService.removeFollow(
+      payload.followerId,
+      payload.followedId
+    );
+  }
+
   @MessagePattern('findAllUserFollows')
   findAll(@Payload() followerId: string) {
     return this.userFollowsService.findAll(followerId);
@@ -28,5 +37,15 @@ export class UserFollowsController {
   @MessagePattern('findFollowers')
   findFollowers(@Payload() payload: { userId: string }) {
     return this.userFollowsService.findFollowers(payload.userId);
+  }
+
+  @MessagePattern('findFollowersByUser')
+  findFollowersByUser(@Payload() payload: { followingId: string }) {
+    return this.userFollowsService.findFollowersByUser(payload.followingId);
+  }
+
+  @MessagePattern('findFollowingByUser')
+  findFollowingByUser(@Payload() payload: { followerId: string }) {
+    return this.userFollowsService.findFollowingByUser(payload.followerId);
   }
 }

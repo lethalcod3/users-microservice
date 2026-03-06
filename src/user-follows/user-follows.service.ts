@@ -55,10 +55,20 @@ export class UserFollowsService implements OnModuleInit {
       select: { email: true, name: true },
     });
 
+    if (!follower) {
+      this.logger.warn(
+        `Follower ${followerId} not found, skipping follow.created event`
+      );
+      return {
+        following: true,
+        message: `Ahora se sigue al usuario ${followedId}`,
+      };
+    }
+
     await this.publisher.publish('follow.created', {
       follower_id: followerId,
-      follower_email: follower!.email,
-      follower_name: follower!.name,
+      follower_email: follower.email,
+      follower_name: follower.name,
       followed_id: followedId,
     });
     this.logger.log(`Emitted follow.created: ${followerId} -> ${followedId}`);
@@ -67,6 +77,29 @@ export class UserFollowsService implements OnModuleInit {
       following: true,
       message: `Ahora se sigue al usuario ${followedId}`,
     };
+  }
+
+  async removeFollow(
+    followerId: string,
+    followedId: string
+  ): Promise<{ following: boolean; message: string }> {
+    const existing = await this.findOne(followerId, followedId);
+
+    if (!existing) {
+      RpcExceptionHelper.notFound('Follow', `${followerId} -> ${followedId}`);
+    }
+
+    await this.prisma.userFollows.delete({
+      where: { followerId_followedId: { followerId, followedId } },
+    });
+
+    await this.publisher.publish('follow.removed', {
+      follower_id: followerId,
+      followed_id: followedId,
+    });
+    this.logger.log(`Emitted follow.removed: ${followerId} -> ${followedId}`);
+
+    return { following: false, message: `Se dejó de seguir al usuario ${followedId}` };
   }
 
   async findAll(followerId: string) {
@@ -89,5 +122,39 @@ export class UserFollowsService implements OnModuleInit {
       select: { followerId: true },
     });
     return follows.map((f) => f.followerId);
+  }
+
+  /**
+   * Retorna todos los registros de follows donde el usuario es el seguido
+   * (es decir, todos los seguidores de followingId).
+   * El gateway recibe el query param `followingId` → mapeado a `followedId` en DB.
+   */
+  async findFollowersByUser(followingId: string) {
+    return await this.prisma.userFollows.findMany({
+      where: { followedId: followingId },
+      select: {
+        followerId: true,
+        followedId: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  /**
+   * Retorna todos los registros de follows donde el usuario es el seguidor
+   * (es decir, todos los usuarios que followerId sigue).
+   * El gateway recibe el query param `followerId` → mapeado a `followerId` en DB.
+   */
+  async findFollowingByUser(followerId: string) {
+    return await this.prisma.userFollows.findMany({
+      where: { followerId },
+      select: {
+        followerId: true,
+        followedId: true,
+        createdAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
   }
 }

@@ -17,8 +17,9 @@ import { envs } from '../config';
 export class PublisherService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger('PublisherService');
   private connection: amqp.AmqpConnectionManager;
-  private channelWrapper: ChannelWrapper;
+  private channelWrapper: ChannelWrapper | undefined;
   private readonly EXCHANGE_NAME = 'riff_events';
+  private ready = false;
 
   async onModuleInit() {
     this.logger.log('Inicializando conexión a RabbitMQ para publicación...');
@@ -31,6 +32,7 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
 
     this.connection.on('disconnect', (err) => {
       this.logger.warn('⚠️ Desconectado de RabbitMQ', err?.err?.message);
+      this.ready = false;
     });
 
     this.channelWrapper = this.connection.createChannel({
@@ -39,6 +41,7 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
         await channel.assertExchange(this.EXCHANGE_NAME, 'topic', {
           durable: true,
         });
+        this.ready = true;
         this.logger.log(`Exchange ${this.EXCHANGE_NAME} asegurado`);
       },
     });
@@ -49,7 +52,7 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
 
   async onModuleDestroy() {
     this.logger.log('Cerrando conexión a RabbitMQ...');
-    await this.channelWrapper.close();
+    await this.channelWrapper?.close();
     await this.connection.close();
   }
 
@@ -57,11 +60,19 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
    * Publica un mensaje al exchange riff_events con una routing key específica
    */
   async publish(routingKey: string, payload: unknown): Promise<void> {
+    if (!this.channelWrapper || !this.ready) {
+      this.logger.warn(
+        `PublisherService no está listo, omitiendo evento: ${routingKey}`
+      );
+      return;
+    }
+
     try {
+      const envelope = { pattern: routingKey, data: payload };
       await this.channelWrapper.publish(
         this.EXCHANGE_NAME,
         routingKey,
-        Buffer.from(JSON.stringify(payload)),
+        Buffer.from(JSON.stringify(envelope)),
         {
           persistent: true,
           contentType: 'application/json',

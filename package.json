@@ -18,7 +18,8 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "rabbit:setup": "node scripts/rabbit-setup.js"
+    "rabbit:setup": "node scripts/rabbit-setup.js",
+    "prisma:studio": "DATABASE_URL=\"postgresql://postgres:123456@localhost:5436/riff_users?schema=public\" prisma studio"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

@@ -18,6 +18,11 @@ export class UsersController {
     return this.usersService.findAll();
   }
 
+  @MessagePattern('findArtists')
+  findArtists(@Payload() pagination: { limit?: number; offset?: number } = {}) {
+    return this.usersService.findArtists(pagination ?? {});
+  }
+
   @MessagePattern('findOneUser')
   findOne(@Payload(new ParseUUIDPipe()) id: string) {
     return this.usersService.findOne(id);

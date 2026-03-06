@@ -171,13 +171,14 @@ export class UsersService implements OnModuleInit {
     return user;
   }
 
-  generateToken(user: any) {
+  generateToken(user: any): string {
     return jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       envs.jwtSecret,
       { expiresIn: '24h' }
-    );
+    ) as string;
   }
+
 
   async createUserGoogle(payload: any) {
     // Verificar si ya existe por googleId
@@ -186,7 +187,9 @@ export class UsersService implements OnModuleInit {
       select: USER_SELECT,
     });
 
-    if (existingUser) return existingUser;
+    if (existingUser) {
+      return existingUser;
+    }
 
     // Crear usuario nuevo
     const user = await this.prisma.user.create({
@@ -201,6 +204,8 @@ export class UsersService implements OnModuleInit {
     });
 
     await this.userStatsService.create(user.id);
+
+
     return user;
   }
 
@@ -226,7 +231,22 @@ export class UsersService implements OnModuleInit {
     // Generar token
     const token = this.generateToken(user);
     const { password: _, ...safeUser } = user!;
+
+
     return { token, user: safeUser };
+  }
+
+  async findArtists(pagination: { limit?: number; offset?: number } = {}) {
+    const take = pagination.limit ? Number(pagination.limit) : undefined;
+    const skip = pagination.offset ? Number(pagination.offset) : undefined;
+
+    return await this.prisma.user.findMany({
+      where: { role: 'ARTIST', status: true },
+      select: USER_SELECT,
+      ...(take !== undefined && { take }),
+      ...(skip !== undefined && { skip }),
+      orderBy: { createdAt: 'desc' },
+    });
   }
 
   async promoteToArtist(userId: string) {

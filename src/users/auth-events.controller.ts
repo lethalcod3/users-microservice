@@ -10,7 +10,7 @@ export class AuthEventsController {
   handleAuthTokenGenerated(@Payload() data: TokenGeneratedEventDto) {
     this.logger.log('Evento recibido — auth.tokenGenerated');
     this.logger.debug(JSON.stringify(data));
-    // Procesar el evento (ej: actualizar estadísticas, enviar notificación, etc.)
-    // No se requiere return ya que es un evento (fire-and-forget)
   }
 }
+
+
