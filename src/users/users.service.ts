@@ -84,7 +84,7 @@ export class UsersService implements OnModuleInit {
   async update(id: string, updateUserDto: UpdateUserDto) {
     await this.findOne(id);
 
-    const { id: _, ...data } = updateUserDto;
+    const { id: _, role: _role, ...data } = updateUserDto;
 
     return await this.prisma.user.update({
       where: { id },
@@ -180,7 +180,6 @@ export class UsersService implements OnModuleInit {
     ) as string;
   }
 
-
   async createUserGoogle(payload: any) {
     // Verificar si ya existe por googleId
     const existingUser = await this.prisma.user.findFirst({
@@ -205,7 +204,6 @@ export class UsersService implements OnModuleInit {
     });
 
     await this.userStatsService.create(user.id);
-
 
     return user;
   }
@@ -232,7 +230,6 @@ export class UsersService implements OnModuleInit {
     // Generar token
     const token = this.generateToken(user);
     const { password: _, ...safeUser } = user!;
-
 
     return { token, user: safeUser };
   }

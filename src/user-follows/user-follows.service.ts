@@ -99,7 +99,10 @@ export class UserFollowsService implements OnModuleInit {
     });
     this.logger.log(`Emitted follow.removed: ${followerId} -> ${followedId}`);
 
-    return { following: false, message: `Se dejó de seguir al usuario ${followedId}` };
+    return {
+      following: false,
+      message: `Se dejó de seguir al usuario ${followedId}`,
+    };
   }
 
   async findAll(followerId: string) {

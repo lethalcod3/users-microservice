@@ -12,5 +12,3 @@ export class AuthEventsController {
     this.logger.debug(JSON.stringify(data));
   }
 }
-
-
