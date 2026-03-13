@@ -3,6 +3,7 @@ import {
   Logger,
   OnModuleInit,
   OnModuleDestroy,
+  ServiceUnavailableException,
 } from '@nestjs/common';
 import * as amqp from 'amqp-connection-manager';
 import { ChannelWrapper } from 'amqp-connection-manager';
@@ -61,10 +62,9 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
    */
   async publish(routingKey: string, payload: unknown): Promise<void> {
     if (!this.channelWrapper || !this.ready) {
-      this.logger.warn(
-        `PublisherService no está listo, omitiendo evento: ${routingKey}`
-      );
-      return;
+      const message = `PublisherService no está listo para publicar evento: ${routingKey}`;
+      this.logger.error(message);
+      throw new ServiceUnavailableException(message);
     }
 
     try {

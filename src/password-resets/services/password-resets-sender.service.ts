@@ -44,12 +44,22 @@ export class PasswordResetsSenderService implements OnModuleInit {
     // eliminar antes de producción
     this.logger.log(`RAW TOKEN (solo para testing): ${rawToken}`);
 
-    await this.publisher.publish('send.resetPassword', {
+    const resetEventPayload = {
       mail: user!.email,
       userId: user!.id,
       userName: user!.name,
       token: rawToken,
-    });
+      from: 'Riff <onboard@riffmx.lat>',
+      fromName: 'Riff',
+      fromEmail: 'onboard@riffmx.lat',
+      source: 'users-ms',
+    };
+
+    this.logger.log(
+      `Publicando send.resetPassword para userId=${user!.id} mail=${user!.email}`
+    );
+
+    await this.publisher.publish('send.resetPassword', resetEventPayload);
 
     this.logger.log('Evento emitido: send.resetPassword');
     // Include both id and userId for compatibility across gateway versions.
@@ -60,6 +70,7 @@ export class PasswordResetsSenderService implements OnModuleInit {
       mail: user!.email,
       email: user!.email,
       userName: user!.name,
+      from: 'Riff <onboard@riffmx.lat>',
     };
   }
 }
