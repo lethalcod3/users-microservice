@@ -61,6 +61,18 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
           await channel.assertExchange(this.EXCHANGE_NAME, 'topic', {
             durable: true,
           });
+
+          // Helps diagnose missing bindings/routing keys from broker side.
+          channel.removeAllListeners('return');
+          channel.on('return', (msg) => {
+            this.logger.error(
+              `Mensaje no enrutable en RabbitMQ. exchange=${msg.fields.exchange} routingKey=${msg.fields.routingKey}`
+            );
+            this.logger.error(
+              `Payload no enrutable: ${msg.content.toString()}`
+            );
+          });
+
           this.ready = true;
           this.logger.log(`Exchange ${this.EXCHANGE_NAME} asegurado`);
         },
@@ -118,6 +130,7 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
         Buffer.from(JSON.stringify(envelope)),
         {
           persistent: true,
+          mandatory: true,
           contentType: 'application/json',
         }
       );
