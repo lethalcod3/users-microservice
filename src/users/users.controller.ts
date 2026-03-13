@@ -39,8 +39,8 @@ export class UsersController {
   }
 
   @MessagePattern('findUserByEmail')
-  findByEmail(@Payload() payload: { email: string }) {
-    return this.usersService.findByEmail(payload.email);
+  findByEmail(@Payload() payload: { email?: string; mail?: string }) {
+    return this.usersService.findByEmail(payload.email ?? payload.mail ?? '');
   }
 
   @MessagePattern('generateToken')

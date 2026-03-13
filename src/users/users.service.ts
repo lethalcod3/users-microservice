@@ -162,12 +162,16 @@ export class UsersService implements OnModuleInit {
   }
 
   async findByEmail(email: string) {
+    const normalizedEmail = email?.trim().toLowerCase();
+
+    if (!normalizedEmail) RpcExceptionHelper.badRequest('Email is required');
+
     const user = await this.prisma.user.findFirst({
-      where: { email, status: true },
+      where: { email: normalizedEmail, status: true },
       select: USER_SELECT,
     });
 
-    if (!user) RpcExceptionHelper.notFound('User', email);
+    if (!user) RpcExceptionHelper.notFound('User', normalizedEmail);
 
     return user;
   }

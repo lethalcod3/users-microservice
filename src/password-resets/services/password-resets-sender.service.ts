@@ -18,11 +18,17 @@ export class PasswordResetsSenderService implements OnModuleInit {
   }
 
   async psswrdResetSender(mailDto: MailDto) {
+    const incomingEmail = mailDto.email ?? mailDto.mail;
+    const normalizedEmail = incomingEmail?.trim().toLowerCase();
+
+    if (!normalizedEmail)
+      RpcExceptionHelper.badRequest('Email is required for password reset');
+
     const user = await this.prisma.user.findUnique({
-      where: { email: mailDto.mail },
+      where: { email: normalizedEmail },
     });
 
-    if (!user) RpcExceptionHelper.notFound('User', mailDto.mail);
+    if (!user) RpcExceptionHelper.notFound('User', normalizedEmail);
 
     const rawToken = randomBytes(32).toString('hex');
     const hashedToken = createHash('sha256').update(rawToken).digest('hex');
