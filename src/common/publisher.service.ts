@@ -61,10 +61,29 @@ export class PublisherService implements OnModuleInit, OnModuleDestroy {
    * Publica un mensaje al exchange riff_events con una routing key específica
    */
   async publish(routingKey: string, payload: unknown): Promise<void> {
-    if (!this.channelWrapper || !this.ready) {
-      const message = `PublisherService no está listo para publicar evento: ${routingKey}`;
+    if (!this.channelWrapper) {
+      const message = `PublisherService sin canal para publicar evento: ${routingKey}`;
       this.logger.error(message);
       throw new ServiceUnavailableException(message);
+    }
+
+    if (!this.ready) {
+      this.logger.warn(
+        `PublisherService no listo, esperando reconexión para evento: ${routingKey}`
+      );
+      try {
+        await this.channelWrapper.waitForConnect();
+        this.ready = true;
+        this.logger.log(
+          'PublisherService reconectado, reintentando publicación'
+        );
+      } catch (error) {
+        const message = `PublisherService no está listo para publicar evento: ${routingKey}`;
+        this.logger.error(
+          `${message}. Detalle: ${error instanceof Error ? error.message : String(error)}`
+        );
+        throw new ServiceUnavailableException(message);
+      }
     }
 
     try {
