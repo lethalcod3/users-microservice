@@ -48,4 +48,9 @@ export class UserFollowsController {
   findFollowingByUser(@Payload() payload: { followerId: string }) {
     return this.userFollowsService.findFollowingByUser(payload.followerId);
   }
+
+  @MessagePattern('findFollowersTotalByUser')
+  findFollowersTotalByUser(@Payload() payload: { userId: string }) {
+    return this.userFollowsService.findFollowersTotalByUser(payload.userId);
+  }
 }

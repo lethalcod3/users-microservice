@@ -160,4 +160,28 @@ export class UserFollowsService implements OnModuleInit {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  async findFollowersTotalByUser(userId: string) {
+    if (!userId?.trim()) {
+      RpcExceptionHelper.badRequest('userId is required');
+    }
+
+    const user = await this.prisma.user.findFirst({
+      where: { id: userId, status: true },
+      select: { id: true },
+    });
+
+    if (!user) RpcExceptionHelper.notFound('User', userId);
+
+    const result = await this.prisma.$queryRaw<
+      Array<{ total_followers: number | bigint | string }>
+    >`SELECT get_total_followers_by_user(${userId}) AS total_followers`;
+
+    const totalFollowers = Number(result[0]?.total_followers ?? 0);
+
+    return {
+      userId,
+      totalFollowers,
+    };
+  }
 }
